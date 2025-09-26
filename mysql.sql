@@ -2,6 +2,7 @@
 
 DROP TABLE runs;
 DROP TABLE users;
+DROP TABLE runnings;
 
 
 CREATE TABLE users (
@@ -12,15 +13,16 @@ CREATE TABLE users (
     age INTEGER,
     gender TEXT,
     location TEXT,
+    color TEXT,
     profile_picture TEXT,
     creation_date TIMESTAMP,
     last_login TIMESTAMP
 );
 
-INSERT INTO users (first_name, last_name, password, age, gender, location, profile_picture, creation_date, last_login)
+INSERT INTO users (first_name, last_name, password, age, gender, location, color, profile_picture, creation_date, last_login)
 VALUES
-  ('Nate', 'Stubbs', 'nate123!', 19, 'Male', 'NSB', 'nate_stubbs.jpg', '2025-09-20 10:20:10', '2025-09-23 10:20:10'),
-  ('Ben', 'Zobrist', 'ben123!', 44, 'Male', 'MPS', 'ben_zobrist.png', '2025-09-22 10:20:10', '2025-09-25 10:20:10');
+  ('Nate', 'Stubbs', 'nate123!', 19, 'Male', 'NSB', 'blue', 'nate_stubbs.jpg', '2025-09-20 10:20:10', '2025-09-23 10:20:10'),
+  ('Ben', 'Zobrist', 'ben123!', 44, 'Male', 'MPS', 'red', 'ben_zobrist.png', '2025-09-22 10:20:10', '2025-09-25 10:20:10');
 
 
 CREATE TABLE runs (
@@ -55,3 +57,17 @@ SELECT
     ) AS time
 FROM runs
 LEFT JOIN users ON runs.user_id = users.id;
+
+
+
+-- newly developed. create a new runnings table that works with what you created, nothing that I created what you created so it works
+CREATE TABLE IF NOT EXISTS runnings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    route_coords TEXT NOT NULL,  -- JSON string of array of points
+    miles REAL NOT NULL,
+    time TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+SELECT * FROM runnings;

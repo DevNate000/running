@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NSB Run - Claimed Territory</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    const map = L.map('map').setView([29.0300, -80.9150], 14);
+
+    // OpenStreetMap base layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Define loop route (rough square) and same points for polygon
+    const loopRoute = [
+      [29.0378, -80.9025], // Start: Flagler & Peninsula
+      [29.0383, -80.9100], // Going West
+      [29.0355, -80.9189], // North Causeway Bridge
+      [29.0300, -80.9250], // Across the bridge
+      [29.0270, -80.9300], // Riverside Dr South
+      [29.0244, -80.9302], // South Causeway (SR-44)
+      [29.0255, -80.9150], // South back East
+      [29.0305, -80.9050], // N Peninsula area
+      [29.0378, -80.9025]  // Closing the loop
+    ];
+
+    // Add the route as a polyline (running path)
+    const polyline = L.polyline(loopRoute, {
+      color: 'blue',
+      weight: 5,
+      opacity: 0.75
+    }).addTo(map);
+
+    // Add the polygon to fill the area you "claimed"
+    const polygon = L.polygon(loopRoute, {
+      color: 'green',
+      fillColor: 'limegreen',
+      fillOpacity: 0.3,
+      weight: 2
+    }).addTo(map);
+
+    // Fit view to the route
+    map.fitBounds(polygon.getBounds());
+  </script>
+
+</body>
+</html>

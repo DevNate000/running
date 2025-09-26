@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Map Style Gallery</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 10px;
+      background: #f4f4f4;
+    }
+
+    .map-container {
+      height: 300px;
+      position: relative;
+      border: 1px solid #ccc;
+    }
+
+    .caption {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 4px 8px;
+      font-size: 13px;
+      font-weight: bold;
+      border-radius: 4px;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Map containers -->
+  <div id="maps"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    const center = [29.0340, -80.9200]; // New Smyrna Beach
+
+    const mapStyles = [
+      { name: "CartoDB.Positron", url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", attribution: "&copy; CartoDB" },
+      { name: "CartoDB.DarkMatter", url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", attribution: "&copy; CartoDB" },
+      { name: "CartoDB.Voyager", url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", attribution: "&copy; CartoDB" },
+      { name: "Esri.WorldImagery", url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", attribution: "&copy; Esri" },
+      { name: "Esri.WorldTopoMap", url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}", attribution: "&copy; Esri" }
+    ];
+
+    // Add all maps dynamically
+    mapStyles.forEach((style, i) => {
+      if (!style.url) return; // skip ones requiring API key
+      const container = document.createElement("div");
+      container.className = "map-container";
+      container.id = `map${i}`;
+      container.innerHTML = `<div class="caption">${style.name}</div>`;
+      document.body.appendChild(container);
+
+      const map = L.map(container.id).setView(center, 12);
+      L.tileLayer(style.url, {
+        attribution: style.attribution,
+        maxZoom: 19
+      }).addTo(map);
+    });
+  </script>
+</body>
+</html>
