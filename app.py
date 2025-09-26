@@ -4,8 +4,9 @@ from datetime import datetime
 
 import sqlite3
 import os
+import subprocess
 
-# time sqlite3 data.db .dump > backup.sql
+# time sqlite3 running.db .dump > backup.sql
 
 
 app = Flask(__name__)
@@ -16,6 +17,15 @@ def dbConnection():
     cursor = conn.cursor()
     return conn, cursor
 
+def backupDatabase():
+    result = subprocess.run("sqlite3 running.db .dump > backup.sql", shell=True, check=True, capture_output=True, text=True)
+
+    print("HERE", result)
+    print("DONE:", result.stdout)
+    if result.stdout:
+        print("Stdout:", result.stdout)
+
+
 @app.route('/')
 def index():
     conn, cursor = dbConnection()
@@ -23,4 +33,22 @@ def index():
     users = cursor.fetchall()
     conn.close()
 
+
+    ## Create button for this. backupDatabase()
+
     return render_template('index.html', users=users)
+
+@app.route('/index2')
+def index2():
+
+    return render_template('index2.html')
+
+@app.route('/maps')
+def maps():
+
+    return render_template('maps.html')
+
+@app.route('/working')
+def working():
+
+    return render_template('working.html')
