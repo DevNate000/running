@@ -1,11 +1,11 @@
 -- To Do: Create ability to have friends
 
 DROP TABLE runs;
-DROP TABLE users;
 DROP TABLE runnings;
+DROP TABLE users;
 
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     first_name TEXT,
     last_name TEXT,
@@ -22,10 +22,10 @@ CREATE TABLE users (
 INSERT INTO users (first_name, last_name, password, age, gender, location, color, profile_picture, creation_date, last_login)
 VALUES
   ('Nate', 'Stubbs', 'nate123!', 19, 'Male', 'NSB', 'blue', 'nate_stubbs.jpg', '2025-09-20 10:20:10', '2025-09-23 10:20:10'),
-  ('Ben', 'Zobrist', 'ben123!', 44, 'Male', 'MPS', 'red', 'ben_zobrist.png', '2025-09-22 10:20:10', '2025-09-25 10:20:10');
+  ('Noah', 'Mckinney', 'ben123!', 44, 'Male', 'MPS', 'red', 'ben_zobrist.png', '2025-09-22 10:20:10', '2025-09-25 10:20:10');
 
 
-CREATE TABLE runs (
+CREATE TABLE IF NOT EXISTS runs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER,
     miles INTEGER,
@@ -63,11 +63,12 @@ LEFT JOIN users ON runs.user_id = users.id;
 -- newly developed. create a new runnings table that works with what you created, nothing that I created what you created so it works
 CREATE TABLE IF NOT EXISTS runnings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
+    user_id INTEGER NOT NULL,
     route_coords TEXT NOT NULL,  -- JSON string of array of points
     miles REAL NOT NULL,
     time TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 SELECT * FROM runnings;

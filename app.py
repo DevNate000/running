@@ -61,49 +61,65 @@ def working():
 
 
 
-# API: Get all runs
+
+# API: Get all runs (join users for display name)
 @app.route('/api/runs', methods=['GET'])
 def api_get_runs():
     conn, cursor = dbConnection()
-    cursor.execute("SELECT id, name, route_coords, miles, time, created_at FROM runnings")
+    cursor.execute("""
+        SELECT runnings.id, runnings.user_id, users.first_name || ' ' || users.last_name as name, runnings.route_coords, runnings.miles, runnings.time, runnings.created_at, users.color
+        FROM runnings
+        LEFT JOIN users ON runnings.user_id = users.id
+                   ORDER BY miles desc
+    """)
     rows = cursor.fetchall()
     conn.close()
     runs = []
     for row in rows:
         runs.append({
             'id': row[0],
-            'name': row[1],
-            'route_coords': row[2],
-            'miles': row[3],
-            'time': row[4],
-            'created_at': row[5]
+            'user_id': row[1],
+            'name': row[2] or '',
+            'route_coords': row[3],
+            'miles': row[4],
+            'time': row[5],
+            'created_at': row[6],
+            'color': row[7] or 'green'
         })
     return jsonify(runs)
 
-# API: Add a new run
+
+# API: Add a new run (expects user_id)
 @app.route('/api/runs', methods=['POST'])
 def api_add_run():
     data = request.get_json()
-    name = data.get('name')
+    user_id = data.get('user_id')
     route_coords = json.dumps(data.get('route_coords'))
     miles = data.get('miles')
     time_val = data.get('time')
     conn, cursor = dbConnection()
-    cursor.execute("INSERT INTO runnings (name, route_coords, miles, time) VALUES (?, ?, ?, ?)",
-                   (name, route_coords, miles, time_val))
+    cursor.execute("INSERT INTO runnings (user_id, route_coords, miles, time) VALUES (?, ?, ?, ?)",
+                   (user_id, route_coords, miles, time_val))
     conn.commit()
     run_id = cursor.lastrowid
-    cursor.execute("SELECT id, name, route_coords, miles, time, created_at FROM runnings WHERE id = ?", (run_id,))
+    cursor.execute("""
+        SELECT runnings.id, runnings.user_id, users.first_name || ' ' || users.last_name as name, runnings.route_coords, runnings.miles, runnings.time, runnings.created_at, users.color
+        FROM runnings
+        LEFT JOIN users ON runnings.user_id = users.id
+        WHERE runnings.id = ?
+    """, (run_id,))
     row = cursor.fetchone()
     conn.close()
     if row:
         run = {
             'id': row[0],
-            'name': row[1],
-            'route_coords': row[2],
-            'miles': row[3],
-            'time': row[4],
-            'created_at': row[5]
+            'user_id': row[1],
+            'name': row[2] or '',
+            'route_coords': row[3],
+            'miles': row[4],
+            'time': row[5],
+            'created_at': row[6],
+            'color': row[7] or 'green'
         }
         return jsonify({'success': True, 'run': run})
     else:

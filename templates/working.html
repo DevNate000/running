@@ -16,14 +16,16 @@
       flex-direction: column;
       height: 100vh;
       font-family: Arial, sans-serif;
+      background: #181a1b;
+      color: #e0e0e0;
     }
     #map {
       flex: 1;
     }
     #controls {
       padding: 10px;
-      background: #f0f0f0;
-      border-top: 1px solid #ccc;
+      background: #23272a;
+      border-top: 1px solid #333;
       display: flex;
       gap: 10px;
       align-items: center;
@@ -33,29 +35,31 @@
       max-height: 150px;
       overflow-y: auto;
       margin-top: 10px;
-      background: white;
+      background: #23272a;
+      color: #e0e0e0;
       padding: 8px;
-      border: 1px solid #ccc;
+      border: 1px solid #333;
       font-size: 14px;
       flex-grow: 1;
       min-width: 300px;
     }
     button {
-      background-color: #0078a8;
-      color: white;
+      background-color: #222e3c;
+      color: #e0e0e0;
       padding: 8px 12px;
       border: none;
       border-radius: 3px;
       cursor: pointer;
       font-weight: bold;
       user-select: none;
+      transition: background 0.2s;
     }
     button:hover {
       background-color: #005f74;
     }
     .delete-instruction {
       font-size: 13px;
-      color: #555;
+      color: #aaa;
       margin-left: auto;
       font-style: italic;
     }
@@ -67,17 +71,17 @@
       font-weight: bold;
     }
     .territory-label-box {
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(30, 32, 34, 0.95);
       padding: 8px 12px;
       border-radius: 6px;
-      border: 1px solid green;
-      color: #004d00;
+      border: 1px solid yellow;
+      color: #e0e0e0;
       font-size: 14px;
       line-height: 1.3;
-      box-shadow: 0 0 5px rgba(0, 128, 0, 0.5);
+      box-shadow: 0 0 5px rgba(0, 128, 0, 0.2);
       user-select: none;
       position: relative;
-      min-width: 160px;
+      width: 160px;
     }
     .menu-button {
       position: absolute;
@@ -94,15 +98,15 @@
     .menu-button div {
       width: 4px;
       height: 4px;
-      background: green;
+      background: #ff5555;
       border-radius: 50%;
     }
     .menu-dropdown {
       position: absolute;
       top: 28px;
       right: 6px;
-      background: white;
-      border: 1px solid #ccc;
+      background: #23272a;
+      border: 1px solid #333;
       border-radius: 4px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
       z-index: 10000;
@@ -112,12 +116,13 @@
       padding: 5px 10px;
       display: none;
       min-width: 80px;
+      color: #e0e0e0;
     }
     .menu-dropdown.show {
       display: block;
     }
     .menu-dropdown:hover {
-      background-color: #f5f5f5;
+      background-color: #333;
     }
 
     /* Leaderboard Table */
@@ -126,16 +131,17 @@
       border-collapse: collapse;
       width: 100%;
       max-width: 700px;
-      background: white;
+      background: #23272a;
+      color: #e0e0e0;
     }
     #leaderboard th, #leaderboard td {
-      border: 1px solid #ccc;
+      border: 1px solid #333;
       padding: 8px 12px;
       text-align: left;
     }
     #leaderboard th {
-      background-color: #0078a8;
-      color: white;
+      background-color: #222e3c;
+      color: #ffe066;
     }
   </style>
 </head>
@@ -148,6 +154,7 @@
   <button id="clearAllBtn" style="background:#a83232;">Clear All</button>
   <div class="delete-instruction">Click markers to delete them</div>
   <div id="locationsList"></div>
+  <button id="mapMode" style="background:#000000;">Map Mode</button>
 </div>
 
 <table id="leaderboard">
@@ -165,10 +172,39 @@
 
   const map = L.map('map').setView(center, 13);
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+
+let mapMode = 'dark_all';
+const mapModeBtn = document.getElementById('mapMode');
+
+function setMapMode(mode) {
+  mapMode = mode;
+  // Remove all tile layers
+  map.eachLayer(layer => {
+    if (layer instanceof L.TileLayer) map.removeLayer(layer);
+  });
+  // Add the new tile layer
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/' + mapMode + '/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; CartoDB',
     maxZoom: 19,
   }).addTo(map);
+  // Update button color
+  if (mapMode === 'dark_all') {
+    mapModeBtn.style.background = '#222e3c';
+    mapModeBtn.style.color = 'white';
+    mapModeBtn.textContent = 'Light Map';
+  } else {
+    mapModeBtn.style.background = '#000000';
+    mapModeBtn.style.color = '#e0e0e0';
+    mapModeBtn.textContent = 'Dark Map';
+  }
+}
+
+mapModeBtn.addEventListener('click', () => {
+  setMapMode(mapMode === 'light_all' ? 'dark_all' : 'light_all');
+});
+
+// Initialize with current mode
+setMapMode(mapMode);
 
   let markers = [];
   let latlngs = [];
@@ -193,7 +229,9 @@
         name: run.name,
         miles: run.miles,
         time: run.time,
-        route_coords: run.route_coords
+        route_coords: run.route_coords,
+        color: run.color,
+        user_id: run.user_id
       }));
       updateLeaderboard();
       // Draw all runs as territories on the map
@@ -220,18 +258,24 @@
       if (!Array.isArray(coords) || coords.length < 2) return;
       // Convert to Leaflet LatLngs
       const latlngArr = coords.map(pt => L.latLng(pt[0], pt[1]));
+      // Use user color or fallback
+      let userColor = run.color || 'green';
+      // Debug: log color for each run
+      console.log('Drawing territory for', run.name, 'user_id:', run.user_id, 'color:', userColor);
+      // If color is a known name, use it; if hex, ensure it starts with #
+      if (/^[0-9a-fA-F]{6}$/.test(userColor)) userColor = '#' + userColor;
       // Draw polyline
-      const routeLine = L.polyline(latlngArr, { color: 'blue' }).addTo(map);
+      const routeLine = L.polyline(latlngArr, { color: userColor }).addTo(map);
       // Draw polygon (closed)
       const polygonPoints = latlngArr.slice();
       polygonPoints.push(latlngArr[0]);
-      const territoryPolygon = L.polygon(polygonPoints, { color: 'green', fillColor: 'green', fillOpacity: 0.3 }).addTo(map);
+      const territoryPolygon = L.polygon(polygonPoints, { color: userColor, fillColor: userColor, fillOpacity: 0.3 }).addTo(map);
       // Calculate centroid
       const centroid = getCentroid(polygonPoints);
-      // Create label
+      // Create label with color styling
       const divIcon = L.divIcon({
         className: 'territory-label',
-        html: createTerritoryLabelHTML(run.name, run.miles, run.time),
+        html: `<div class="territory-label-box" style="border:1px solid ${userColor};color:${userColor}"><strong>${escapeHtml(run.name)}</strong><br/>Miles: ${run.miles} mi<br/>Time: ${escapeHtml(run.time)}</div>`,
         iconSize: [180, 80],
         iconAnchor: [90, 40]
       });
@@ -447,10 +491,10 @@
       return;
     }
 
-    // Prompt for user inputs
-    const userName = prompt('Enter your name:', 'Nate');
-    if (userName === null || userName.trim() === '') {
-      alert('Name is required.');
+    // Prompt for user_id
+    const userId = prompt('Enter your user ID (number):', '1');
+    if (userId === null || userId.trim() === '' || isNaN(userId)) {
+      alert('User ID is required and must be a number.');
       return;
     }
     const userTime = prompt('Enter total time (e.g., 30:00):', '30:00');
@@ -469,7 +513,7 @@
 
     // Prepare run data
     const runData = {
-      name: userName.trim(),
+      user_id: userId.trim(),
       route_coords: latlngs.map(pt => [pt.lat, pt.lng]),
       miles: totalDistanceMiles,
       time: userTime.trim()
@@ -484,14 +528,18 @@
       });
       const result = await res.json();
       if (result.success && result.run) {
-        // Add to leaderboard from backend response
+        // Add to leaderboard from backend response, including color and user_id
         runs.unshift({
           name: result.run.name,
           miles: result.run.miles,
-          time: result.run.time
+          time: result.run.time,
+          route_coords: result.run.route_coords,
+          color: result.run.color,
+          user_id: result.run.user_id
         });
         updateLeaderboard();
-        drawRouteAndTerritory(result.run.name, result.run.time);
+        // Draw the new territory with the correct color
+        drawAllTerritories();
         canAddMarkers = false;
         document.getElementById('showRouteBtn').textContent = 'Route Claimed!';
       } else {
