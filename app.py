@@ -26,17 +26,19 @@ def backupDatabase():
         print("Stdout:", result.stdout)
 
 
-@app.route('/')
-def index():
+@app.route('/old_index')
+def old_index():
     conn, cursor = dbConnection()
     cursor.execute("SELECT * FROM users")
     users = cursor.fetchall()
     conn.close()
 
+    backupDatabase()
+
 
     ## Create button for this. backupDatabase()
 
-    return render_template('index.html', users=users)
+    return render_template('old_index.html', users=users)
 
 @app.route('/index2')
 def index2():
@@ -48,7 +50,7 @@ def maps():
 
     return render_template('maps.html')
 
-@app.route('/working')
+@app.route('/')
 def working():
     return render_template('working.html')
 
@@ -70,21 +72,39 @@ def api_get_runs():
         SELECT runnings.id, runnings.user_id, users.first_name || ' ' || users.last_name as name, runnings.route_coords, runnings.miles, runnings.time, runnings.created_at, users.color
         FROM runnings
         LEFT JOIN users ON runnings.user_id = users.id
-                   ORDER BY miles desc
+        ORDER BY miles desc
     """)
     rows = cursor.fetchall()
     conn.close()
     runs = []
     for row in rows:
+        miles = row[4]
+        time_str = row[5]
+        pace = None
+        if miles and time_str:
+            # Parse time (hh:mm:ss or mm:ss)
+            parts = [int(x) for x in time_str.split(":")]
+            if len(parts) == 3:
+                total_seconds = parts[0]*3600 + parts[1]*60 + parts[2]
+            elif len(parts) == 2:
+                total_seconds = parts[0]*60 + parts[1]
+            else:
+                total_seconds = 0
+            if miles > 0:
+                pace_sec = total_seconds / float(miles)
+                pace_min = int(pace_sec // 60)
+                pace_rem = int(round(pace_sec % 60))
+                pace = f"{pace_min}:{pace_rem:02d}"
         runs.append({
             'id': row[0],
             'user_id': row[1],
             'name': row[2] or '',
             'route_coords': row[3],
-            'miles': row[4],
-            'time': row[5],
+            'miles': miles,
+            'time': time_str,
             'created_at': row[6],
-            'color': row[7] or 'green'
+            'color': row[7] or 'green',
+            'pace': pace
         })
     return jsonify(runs)
 
@@ -111,15 +131,32 @@ def api_add_run():
     row = cursor.fetchone()
     conn.close()
     if row:
+        miles = row[4]
+        time_str = row[5]
+        pace = None
+        if miles and time_str:
+            parts = [int(x) for x in time_str.split(":")]
+            if len(parts) == 3:
+                total_seconds = parts[0]*3600 + parts[1]*60 + parts[2]
+            elif len(parts) == 2:
+                total_seconds = parts[0]*60 + parts[1]
+            else:
+                total_seconds = 0
+            if miles > 0:
+                pace_sec = total_seconds / float(miles)
+                pace_min = int(pace_sec // 60)
+                pace_rem = int(round(pace_sec % 60))
+                pace = f"{pace_min}:{pace_rem:02d}"
         run = {
             'id': row[0],
             'user_id': row[1],
             'name': row[2] or '',
             'route_coords': row[3],
-            'miles': row[4],
-            'time': row[5],
+            'miles': miles,
+            'time': time_str,
             'created_at': row[6],
-            'color': row[7] or 'green'
+            'color': row[7] or 'green',
+            'pace': pace
         }
         return jsonify({'success': True, 'run': run})
     else:
