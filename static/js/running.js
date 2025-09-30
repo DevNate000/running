@@ -229,14 +229,14 @@ setMapMode(mapMode);
   function updateLocationsList() {
     const listEl = document.getElementById('locationsList');
     if (latlngs.length === 0) {
-      listEl.innerHTML = '<i>No markers dropped yet.</i>';
+      listEl.innerHTML = '';
       return;
     }
-    listEl.innerHTML = '<b>Dropped Locations:</b><br/>' + latlngs
-      .map((pt, i) => {
-        return `${i + 1}. Lat: ${pt.lat.toFixed(5)}, Lng: ${pt.lng.toFixed(5)}`;
-      })
-      .join('<br/>');
+    // Only log the lat/lng to the console
+    latlngs.forEach((pt, i) => {
+      console.log(`${i + 1}. Lat: ${pt.lat.toFixed(5)}, Lng: ${pt.lng.toFixed(5)}`);
+    });
+    listEl.innerHTML = '';
   }
 
   function clearRouteAndPolygon() {
@@ -448,15 +448,6 @@ setMapMode(mapMode);
     }
   });
 
-  document.getElementById('clearAllBtn').addEventListener('click', () => {
-    clearAllMarkers();
-    clearRouteAndPolygon();
-    runs = [];
-    updateLeaderboard();
-    canAddMarkers = true;
-    markersDraggable = true;
-    document.getElementById('showRouteBtn').textContent = 'Show Route & Claim Territory';
-  });
 
 
   // On page load, fetch runs from backend

@@ -41,6 +41,7 @@
       align-items: center;
       flex-wrap: wrap;
       flex-shrink: 0;
+      justify-content: center;
     }
     #locationsList {
       max-height: 150px;
@@ -147,7 +148,7 @@
     }
     #leaderboard th, #leaderboard td {
       border: 1px solid #333;
-      padding: 8px 12px;
+      padding: 4px 6px;
       text-align: left;
     }
     #leaderboard th {
@@ -176,12 +177,15 @@
         gap: 8px;
     }
 
-    .profile-picture {
-        width: 40px;
-        height: 40px;
-        border-radius: 20%;
-        object-fit: cover;
-    }
+
+  .profile-picture {
+    width: 40px;
+    height: 40px;
+    border-radius: 20%;
+    object-fit: cover;
+    border: 2px solid #d7d7d7;
+    box-shadow: 0 0 2px 1px rgb(193, 192, 189);
+  }
 
 
 
