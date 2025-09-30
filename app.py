@@ -64,7 +64,7 @@ def private():
 
 def dbRunsQuery(condition):
     runsQuery = f"""
-        SELECT runnings.id, runnings.user_id, users.first_name || ' ' || users.last_name as name, runnings.route_coords, runnings.miles, runnings.time, runnings.created_at, users.color
+        SELECT runnings.id, runnings.user_id, users.first_name || ' ' || users.last_name as name, runnings.route_coords, runnings.miles, runnings.time, runnings.created_at, users.color, users.profile_picture
         FROM runnings
         LEFT JOIN users ON runnings.user_id = users.id
         {condition}
@@ -116,7 +116,8 @@ def api_get_runs():
             'time': time_str,
             'created_at': row[6],
             'color': row[7] or 'green',
-            'pace': pace
+            'pace': pace,
+            'profile_picture': row[8] or 'default'
         })
     return jsonify(runs)
 

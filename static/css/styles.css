@@ -170,6 +170,19 @@
       text-align: left;
   }
 
+    .profile-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .profile-picture {
+        width: 40px;
+        height: 40px;
+        border-radius: 20%;
+        object-fit: cover;
+    }
+
 
 
 

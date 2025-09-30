@@ -361,7 +361,7 @@ setMapMode(mapMode);
 
     tbody.innerHTML = runs.map(run => {
       return `<tr>
-        <td>${escapeHtml(run.name)}</td>
+        <td> <div class="profile-container"> <img class="profile-picture" src="/static/img/${run.profile_picture}.png" alt="${run.profile_picture}"> ${escapeHtml(run.name)} </div> </td>
         <td>${run.miles}</td>
         <td>${escapeHtml(run.time)}</td>
         <td>${run.pace ? escapeHtml(run.pace) : '--'}/mi</td>
