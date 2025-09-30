@@ -1,270 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Running Route Territory Claim with Leaderboard</title>
-
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet/dist/leaflet.css"
-  />
-  <style>
-    body {
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      font-family: Arial, sans-serif;
-      background: #181a1b;
-      color: #e0e0e0;
-    }
-    #main-flex {
-      display: flex;
-      flex-direction: row;
-      height: 100vh;
-      width: 100vw;
-    }
-    #map {
-      flex: 2 1 0%;
-      min-width: 0;
-      min-height: 0;
-      height: 100vh;
-    }
-    #side-panel {
-      flex: 1 1 350px;
-      min-width: 320px;
-      max-width: 480px;
-      background: #23272a;
-      display: flex;
-      flex-direction: column;
-      padding: 0 0 0 0;
-      box-shadow: -2px 0 8px #0004;
-      z-index: 10;
-      height: 100vh;
-      overflow-y: auto;
-    }
-    #controls {
-      padding: 16px 16px 0 16px;
-      background: #23272a;
-      border-bottom: 1px solid #333;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-      flex-shrink: 0;
-    }
-    #locationsList {
-      max-height: 150px;
-      overflow-y: auto;
-      margin-top: 10px;
-      background: #23272a;
-      color: #e0e0e0;
-      padding: 8px;
-      border: 1px solid #333;
-      font-size: 14px;
-      flex-grow: 1;
-      min-width: 300px;
-    }
-    button {
-      background-color: #222e3c;
-      color: #e0e0e0;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
-      font-weight: bold;
-      user-select: none;
-      transition: background 0.2s;
-    }
-    button:hover {
-      background-color: #005f74;
-    }
-    .delete-instruction {
-      font-size: 13px;
-      color: #aaa;
-      margin-left: auto;
-      font-style: italic;
-    }
-
-    /* Territory label styles */
-    .territory-label {
-      position: relative;
-      white-space: nowrap;
-      font-weight: bold;
-    }
-    .territory-label-box {
-      background: rgba(30, 32, 34, 0.95);
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid yellow;
-      color: #e0e0e0;
-      font-size: 14px;
-      line-height: 1.3;
-      box-shadow: 0 0 5px rgba(0, 128, 0, 0.2);
-      user-select: none;
-      position: relative;
-      width: 160px;
-    }
-    .menu-button {
-      position: absolute;
-      top: 4px;
-      right: 6px;
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-      align-items: center;
-    }
-    .menu-button div {
-      width: 4px;
-      height: 4px;
-      background: #ff5555;
-      border-radius: 50%;
-    }
-    .menu-dropdown {
-      position: absolute;
-      top: 28px;
-      right: 6px;
-      background: #23272a;
-      border: 1px solid #333;
-      border-radius: 4px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      z-index: 10000;
-      user-select: none;
-      font-size: 13px;
-      cursor: pointer;
-      padding: 5px 10px;
-      display: none;
-      min-width: 80px;
-      color: #e0e0e0;
-    }
-    .menu-dropdown.show {
-      display: block;
-    }
-    .menu-dropdown:hover {
-      background-color: #333;
-    }
-
-    /* Leaderboard Table */
-    #leaderboard {
-      margin: 16px;
-      border-collapse: collapse;
-      width: calc(100% - 32px);
-      max-width: 700px;
-      background: #23272a;
-      color: #e0e0e0;
-    }
-    #leaderboard th, #leaderboard td {
-      border: 1px solid #333;
-      padding: 8px 12px;
-      text-align: left;
-    }
-    #leaderboard th {
-      background-color: #222e3c;
-      color: #ffe066;
-    }
-
-    /* Tooltip styles */
-    .territory-tooltip {
-      background: #23272a !important;
-      border-radius: 8px !important;
-      font-size: 14px !important;
-      box-shadow: 0 2px 8px #000a !important;
-      padding: 8px 12px !important;
-      line-height: 1.4 !important;
-    }
-  </style>
-  <style>
-/* Mobile responsive: hide side-panel, show floating button */
-@media (max-width: 700px) {
-  #main-flex {
-    flex-direction: column;
-  }
-  #map {
-    height: 100vh !important;
-    min-height: 60vh;
-    width: 100vw;
-  }
-  #side-panel {
-    position: fixed;
-    left: 0; right: 0;
-    bottom: 56px; /* leave space for menu */
-    top: auto;
-    width: 100vw;
-    max-width: 100vw;
-    height: 70vh;
-    min-height: 200px;
-    max-height: 80vh;
-    background: #23272a;
-    z-index: 2000;
-    box-shadow: 0 -2px 8px #000a;
-    border-top-left-radius: 18px;
-    border-top-right-radius: 18px;
-    transform: translateY(100%);
-    transition: transform 0.3s cubic-bezier(.4,0,.2,1);
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    padding-bottom: 16px !important;
-    margin: 0 !important;
-  }
-  #side-panel.mobile-visible {
-    transform: translateY(0);
-  }
-  #leaderboard {
-    margin-bottom: 24px !important;
-  }
-  #mobile-bottom-menu {
-    position: fixed;
-    left: 0; right: 0; bottom: 0;
-    z-index: 2100;
-    text-align-last: center;
-    width: 100%;
-    background-color: black;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-  }
-}
-@media (min-width: 701px) {
-  #show-leaderboard-btn { display: none; }
-  #side-panel .close-leaderboard { display: none; }
-  #mobile-bottom-menu { display: none; }
-}
-</style>
-</head>
-<body>
-
-<div id="main-flex">
-  <div id="map"></div>
-  <div id="side-panel">
-    <div id="controls">
-      <button id="showRouteBtn">Show Route & Claim Territory</button>
-      <button id="clearAllBtn" style="background:#a83232;">Clear All</button>
-      <button id="mapMode" style="background:#000000;">Map Mode</button>
-      <div id="locationsList"></div>
-    </div>
-    <table id="leaderboard">
-      <thead>
-        <tr><th>Name</th><th>Miles</th><th>Time</th><th>Pace</th></tr>
-      </thead>
-      <tbody>
-        <tr><td colspan="4" style="text-align:center; font-style: italic; color:#777;">No runs yet</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-<div id="mobile-bottom-menu">
-  <button id="mobile-add-route">Add Route</button>
-  <button id="mobile-leaderboard">Leaderboard</button>
-  <button id="mobile-map-mode">Light Map</button>
-</div>
-
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script>
-  const center = [29.0340, -80.9200]; // New Smyrna Beach
+const center = [29.0340, -80.9200]; // New Smyrna Beach
 
   const map = L.map('map').setView(center, 13);
 
@@ -405,7 +139,8 @@ setMapMode(mapMode);
         border:2px solid #fff;
         min-width:24px;
         text-align:center;
-        pointer-events:auto;">
+        pointer-events:auto;
+        ">
         ${initials}
       </div>`;
       const pillIcon = L.divIcon({
@@ -417,12 +152,21 @@ setMapMode(mapMode);
       const pillMarker = L.marker(centroid, { icon: pillIcon, interactive: true }).addTo(map);
 
       // Add a Leaflet tooltip for details
+      const runDate = new Date(run.created_at).toLocaleString('en-US', {
+        year: '2-digit',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
       const labelDetails = `
-        <div class='territory-tooltip' style='color: ${run.color}; background-color: black; width:120px;'>
+        <div style='color: ${run.color};'>
           <strong>${escapeHtml(run.name)}</strong><br/>
           Miles: ${run.miles} mi<br/>
           Time: ${escapeHtml(run.time)}<br/>
           Pace: ${run.pace ? escapeHtml(run.pace) : '--'}/mi <br/>
+          Date: ${runDate} <br/>
         </div>
       `;
       pillMarker.bindTooltip(labelDetails, {
@@ -755,15 +499,3 @@ setMapMode(mapMode);
     // Set initial text for map mode button
     document.getElementById('mobile-map-mode').textContent = mapMode === 'light_all' ? 'Dark Map' : 'Light Map';
   }
-</script>
-
-</body>
-</html>
-<style>
-/* Hide side panel by default on mobile */
-@media (max-width: 700px) {
-  #side-panel.mobile-hidden {
-    display: none !important;
-  }
-}
-</style>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NS Running Route Territory</title>
+  <link rel="stylesheet" href="static/css/styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+</head>
+<body>
+
+<div id="main-flex">
+  <div id="map"></div>
+  <div id="side-panel">
+    <div id="controls">
+      <button id="showRouteBtn">Show Route & Claim Territory</button>
+      <button id="clearAllBtn" style="background:#a83232;">Clear All</button>
+      <button id="mapMode" style="background:#000000;">Map Mode</button>
+      <div id="locationsList"></div>
+    </div>
+    <table id="leaderboard">
+      <thead>
+        <tr><th>Name</th><th>Miles</th><th>Time</th><th>Pace</th></tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="4" style="text-align:center; font-style: italic; color:#777;">No runs yet</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div id="mobile-bottom-menu">
+  <button id="mobile-add-route">Add Route</button>
+  <button id="mobile-leaderboard">Leaderboard</button>
+  <button id="mobile-map-mode">Light Map</button>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="static/js/running.js"></script>
+
+
+</body>
+</html>

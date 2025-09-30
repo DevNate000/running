@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash
 from datetime import datetime
+from urllib.parse import urlparse
 
 
 import sqlite3
@@ -11,14 +12,15 @@ import json
 
 app = Flask(__name__)
 app.secret_key = 'e5f4a6d5f4ef0e4a7b2c8a7b3c2d13d1'
+DATABASE = 'running.db'
 
 def dbConnection():
-    conn = sqlite3.connect('running.db')
+    conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
     return conn, cursor
 
 def backupDatabase():
-    result = subprocess.run("sqlite3 running.db .dump > backup.sql", shell=True, check=True, capture_output=True, text=True)
+    result = subprocess.run("sqlite3 ", DATABASE, " .dump > backup.sql", shell=True, check=True, capture_output=True, text=True)
 
     print("HERE", result)
     print("DONE:", result.stdout)
@@ -51,29 +53,39 @@ def maps():
     return render_template('maps.html')
 
 @app.route('/')
-def working():
-    return render_template('working.html')
+def public():
+    return render_template('public.html')
+
+@app.route('/private')
+def private():
+    return render_template('private.html')
 
 
 
-
-
-
-
-
-
-
-
-# API: Get all runs (join users for display name)
-@app.route('/api/runs', methods=['GET'])
-def api_get_runs():
-    conn, cursor = dbConnection()
-    cursor.execute("""
+def dbRunsQuery(condition):
+    runsQuery = f"""
         SELECT runnings.id, runnings.user_id, users.first_name || ' ' || users.last_name as name, runnings.route_coords, runnings.miles, runnings.time, runnings.created_at, users.color
         FROM runnings
         LEFT JOIN users ON runnings.user_id = users.id
+        {condition}
         ORDER BY miles desc
-    """)
+        """
+    return runsQuery
+
+
+@app.route('/api/runs', methods=['GET'])
+def api_get_runs():
+    conn, cursor = dbConnection()
+
+    page = urlparse(request.referrer).path.strip('/').split('/')[-1]
+
+    if page == 'private':
+        queryCondition = 'WHERE user_id IN (1,2)'
+    else:
+        queryCondition = 'WHERE user_id != 2'
+
+    cursor.execute(dbRunsQuery(queryCondition))
+
     rows = cursor.fetchall()
     conn.close()
     runs = []
