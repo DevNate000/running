@@ -16,6 +16,7 @@ DATABASE = 'running.db'
 
 def dbConnection():
     conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     return conn, cursor
 
@@ -32,6 +33,20 @@ def backupDatabase():
 def login():
     return render_template('login.html')
 
+
+
+@app.route('/profile/<username>', methods=['GET', 'POST'])
+def profile(username):
+    conn, cursor = dbConnection()
+    cursor.execute("SELECT id FROM users WHERE username = ?", (username,))
+    user_id = cursor.fetchone()[0]
+    cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+    user = cursor.fetchone()
+    cursor.execute("select SUM(MILES) from runnings where user_id = ?", (user_id,))
+    total_miles = cursor.fetchone()[0]
+    conn.close()
+
+    return render_template('profile.html', user=user, total_miles=total_miles)
 
 @app.route('/old_index')
 def old_index():
@@ -69,7 +84,7 @@ def private():
 
 def dbRunsQuery(condition):
     runsQuery = f"""
-        SELECT runnings.id, runnings.user_id, users.first_name || ' ' || users.last_name as name, runnings.route_coords, runnings.miles, runnings.time, runnings.created_at, users.color, users.profile_picture
+        SELECT runnings.id, runnings.user_id, users.first_name || ' ' || users.last_name as name, runnings.route_coords, runnings.miles, runnings.time, runnings.created_at, users.color, users.profile_picture, users.username
         FROM runnings
         LEFT JOIN users ON runnings.user_id = users.id
         {condition}
@@ -127,7 +142,8 @@ def api_get_runs():
             'created_at': row[6],
             'color': row[7] or 'green',
             'pace': pace,
-            'profile_picture': row[8] or 'default'
+            'profile_picture': row[8],
+            'username': row[9]
         })
     return jsonify(runs)
 

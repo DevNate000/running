@@ -7,6 +7,7 @@ DROP TABLE users;
 
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username,
     first_name TEXT,
     last_name TEXT,
     password TEXT,
@@ -16,19 +17,18 @@ CREATE TABLE IF NOT EXISTS users (
     color TEXT,
     profile_picture TEXT,
     creation_date TIMESTAMP,
-    last_login TIMESTAMP,
-    username
+    last_login TIMESTAMP
 );
 
 
-INSERT INTO users (first_name, last_name, password, age, gender, location, color, profile_picture, creation_date, last_login, username)
+INSERT INTO users (username, first_name, last_name, password, age, gender, location, color, profile_picture, creation_date, last_login)
 VALUES
-    ('Nate', 'Smith', 'nate123!', 19, 'Male', 'NSB', 'lightblue', 'ns', '2025-09-20 10:20:10', '2025-09-23 10:20:10', 'nate18'),
-    ('Upcoming', 'Runs', 'nate123!', 19, 'Male', 'NSB', 'grey', 'upcoming', '2025-09-20 10:20:10', '2025-09-23 10:20:10', '625365123'),
-    ('Noah', 'McDonald', 'nMcd!', 19, 'Male', 'MPS', 'red', '', '2025-09-22 10:20:10', '2025-09-25 10:20:10', '12534123'),
-    ('Dad', 'Smith', 'dad!', 45, 'Male', 'NSB', 'orange', '', '2025-09-20', '2025-09-25', '1827381'),
-    ('Paul', 'Smith', 'paul!', 15, 'Male', 'NSB', 'lightblue', '', '2025-09-21', '2025-09-25', '123123d'),
-    ('Marlee', 'Networth', 'm!', 15, 'Male', 'NSB', 'purple', '', '2025-09-22', '2025-09-26', '1235412');
+    ('nate18', 'Nate', 'Smith', 'nate123!', 19, 'Male', 'NSB', 'lightblue', 'ns', '2025-09-20 10:20:10', '2025-09-23 10:20:10'),
+    ('upcomingruns', 'Upcoming', 'Runs', 'nate123!', 19, 'Male', 'NSB', 'grey', 'upcoming', '2025-09-20 10:20:10', '2025-09-23 10:20:10'),
+    ('noahmc', 'Noah', 'McDonald', 'nMcd!', 19, 'Male', 'MPS', 'red', 'default', '2025-09-22 10:20:10', '2025-09-25 10:20:10'),
+    ('dadsm', 'Dad', 'Smith', 'dad!', 45, 'Male', 'NSB', 'orange', 'default', '2025-09-20', '2025-09-25'),
+    ('paulsm', 'Paul', 'Smith', 'paul!', 15, 'Male', 'NSB', 'lightblue', 'default', '2025-09-21', '2025-09-25'),
+    ('mnetworth', 'Marlee', 'Networth', 'm!', 15, 'Male', 'NSB', 'purple', 'default', '2025-09-22', '2025-09-26');
 
 CREATE TABLE IF NOT EXISTS runs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

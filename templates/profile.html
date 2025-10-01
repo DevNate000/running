@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ user.username }}'s Profile</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .profile-card {
+      background: #1e1e1e;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+      max-width: 420px;
+      width: 100%;
+      padding: 30px;
+      text-align: center;
+      color: #e0e0e0;
+    }
+
+    .profile-picture {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #88bcf0;
+      margin-bottom: 20px;
+      background-color: #333;
+    }
+
+    h1 {
+      margin: 10px 0 5px;
+      font-size: 24px;
+      color: #ffffff;
+    }
+
+    .username {
+      font-size: 18px;
+      color: #3a8dde;
+      font-weight: bold;
+    }
+
+    .info {
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .info p {
+      margin: 6px 0;
+      font-size: 16px;
+      color: #bbbbbb;
+    }
+
+    .info span {
+      font-weight: bold;
+      color: #cccccc;
+    }
+
+    .meta {
+      font-size: 13px;
+      color: #777;
+      margin-top: 25px;
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-card">
+    <img src="{{ url_for('static', filename='img/' + user.profile_picture + '.png') }}" alt="Profile Picture" class="profile-picture" />
+    <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+    <div class="username">@{{ user.username }}</div>
+
+    <div class="info">
+      <p><span>Age:</span> {{ user.age }}</p>
+      <p><span>Gender:</span> {{ user.gender }}</p>
+      <p><span>Location:</span> {{ user.location }}</p>
+      <p><span>Total Miles:</span> {{total_miles}}</p>
+    </div>
+
+    <div class="meta">
+      <p>Joined: {{ user.creation_date }}</p>
+      <p>Last login: {{ user.last_login }}</p>
+    </div>
+  </div>
+</body>
+</html>
