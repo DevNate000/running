@@ -1,3 +1,31 @@
+/* Backup/Reset Database Buttons */
+#backup-db-btn {
+  background: linear-gradient(90deg, #1e9600 0%, #fff200 100%);
+  color: #222;
+  box-shadow: 0 0 8px 2px #1e960055;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  margin-right: 8px;
+}
+#backup-db-btn:hover {
+  background: linear-gradient(90deg, #fff200 0%, #1e9600 100%);
+  color: #000;
+  box-shadow: 0 0 12px 4px #1e9600aa;
+}
+#reset-db-btn {
+  background: linear-gradient(90deg, #ff512f 0%, #dd2476 100%);
+  color: #fff;
+  box-shadow: 0 0 8px 2px #ff512f55;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+}
+#reset-db-btn:hover {
+  background: linear-gradient(90deg, #dd2476 0%, #ff512f 100%);
+  color: #fff;
+  box-shadow: 0 0 12px 4px #ff512faa;
+}
     body {
       margin: 0;
       display: flex;

@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{{ user.username }}'s Profile</title>
+  <title>{{ user.first_name }}'s Profile</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/' + user.profile_picture + '.png') }}">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -23,7 +24,7 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
       max-width: 420px;
       width: 100%;
-      padding: 30px;
+      padding: 20px;
       text-align: center;
       color: #e0e0e0;
     }
@@ -75,9 +76,15 @@
 </head>
 <body>
   <div class="profile-card">
-    <img src="{{ url_for('static', filename='img/' + user.profile_picture + '.png') }}" alt="Profile Picture" class="profile-picture" />
-    <h1>{{ user.first_name }} {{ user.last_name }}</h1>
-    <div class="username">@{{ user.username }}</div>
+<div style="justify-self: left;">
+  <span onclick="history.back()" style="cursor: pointer; font-size: 20px;">←</span>
+</div>
+
+    <div>
+        <img src="{{ url_for('static', filename='img/' + user.profile_picture + '.png') }}" alt="Profile Picture" class="profile-picture" />
+        <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+        <div class="username">@{{ user.username }}</div>
+    </div>
 
     <div class="info">
       <p><span>Age:</span> {{ user.age }}</p>

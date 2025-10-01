@@ -16,10 +16,10 @@ CREATE TABLE users (
 );
 INSERT INTO users VALUES(1,'nate18','Nate','Smith','nate123!',19,'Male','NSB','lightblue','ns','2025-09-20 10:20:10','2025-09-23 10:20:10');
 INSERT INTO users VALUES(2,'upcomingruns','Upcoming','Runs','nate123!',19,'Male','NSB','grey','upcoming','2025-09-20 10:20:10','2025-09-23 10:20:10');
-INSERT INTO users VALUES(3,'noahmc','Noah','McDonald','nMcd!',19,'Male','MPS','red','','2025-09-22 10:20:10','2025-09-25 10:20:10');
-INSERT INTO users VALUES(4,'dadsm','Dad','Smith','dad!',45,'Male','NSB','orange','','2025-09-20','2025-09-25');
-INSERT INTO users VALUES(5,'paulsm','Paul','Smith','paul!',15,'Male','NSB','lightblue','','2025-09-21','2025-09-25');
-INSERT INTO users VALUES(6,'mnetworth','Marlee','Networth','m!',15,'Male','NSB','purple','','2025-09-22','2025-09-26');
+INSERT INTO users VALUES(3,'noahmc','Noah','McDonald','nMcd!',19,'Male','MPS','red','default','2025-09-22 10:20:10','2025-09-25 10:20:10');
+INSERT INTO users VALUES(4,'dadsm','Dad','Smith','dad!',45,'Male','NSB','orange','default','2025-09-20','2025-09-25');
+INSERT INTO users VALUES(5,'paulsm','Paul','Smith','paul!',15,'Male','NSB','lightblue','default','2025-09-21','2025-09-25');
+INSERT INTO users VALUES(6,'mnetworth','Marlee','Networth','m!',15,'Male','NSB','purple','default','2025-09-22','2025-09-26');
 CREATE TABLE runs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER,
@@ -51,7 +51,20 @@ INSERT INTO runnings VALUES(7,3,'[[29.047766181633662, -80.99498748779298], [29.
 INSERT INTO runnings VALUES(10,2,'[[29.00588843947475, -80.91190338134767], [29.00487505788769, -80.91439247131349], [29.008027767968553, -80.91919898986818], [29.01515854305436, -80.92211723327638], [29.020937862768502, -80.92512130737306], [29.022814195730785, -80.91979980468751], [29.012981832322442, -80.9156370162964], [29.01054236062201, -80.91495037078859], [29.006071410091092, -80.91197848320009]]',3.10999999999999987,'30:00','2025-09-30 21:01:34');
 INSERT INTO runnings VALUES(11,2,'[[29.035122094533666, -80.92769622802736], [29.028367941489027, -80.945463180542], [29.025441004603575, -80.94473361968996], [29.025516055303772, -80.94155788421632], [29.02296430089502, -80.9416437149048], [29.0228517220423, -80.94027042388917], [29.022926774624416, -80.93434810638429], [29.027805075454996, -80.9221601486206]]',3.60000000000000008,'30:00','2025-09-30 21:02:00');
 INSERT INTO runnings VALUES(12,2,'[[28.985112131000268, -80.94404697418214], [28.979781312105164, -80.94267368316652], [28.983497897940854, -80.93273878097536], [28.990348829918908, -80.93576431274414], [28.990780517281657, -80.93449831008913], [28.992488480045665, -80.93518495559694], [28.991212202842203, -80.93956232070924], [28.98926021900173, -80.93801736831666], [28.987289428706045, -80.94194412231447], [28.986200785582824, -80.9417510032654]]',2.70000000000000017,'30:00','2025-09-30 21:02:24');
+CREATE TABLE maps (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    url TEXT NOT NULL,
+    attribution TEXT,
+    example TEXT
+);
+INSERT INTO maps VALUES(1,'CartoDB.Positron','https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png','&copy; CartoDB','{ "name": "CartoDB.Positron", "url": "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", "attribution": "&copy; CartoDB" }');
+INSERT INTO maps VALUES(2,'CartoDB.DarkMatter','https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png','&copy; CartoDB','{ "name": "CartoDB.DarkMatter", "url": "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", "attribution": "&copy; CartoDB" }');
+INSERT INTO maps VALUES(3,'CartoDB.Voyager','https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png','&copy; CartoDB','{ "name": "CartoDB.Voyager", "url": "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", "attribution": "&copy; CartoDB" }');
+INSERT INTO maps VALUES(4,'Esri.WorldImagery','https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}','&copy; Esri','{ "name": "Esri.WorldImagery", "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", "attribution": "&copy; Esri" }');
+INSERT INTO maps VALUES(5,'Esri.WorldTopoMap','https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}','&copy; Esri','{ "name": "Esri.WorldTopoMap", "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}", "attribution": "&copy; Esri" }');
 DELETE FROM sqlite_sequence;
 INSERT INTO sqlite_sequence VALUES('users',6);
 INSERT INTO sqlite_sequence VALUES('runnings',12);
+INSERT INTO sqlite_sequence VALUES('maps',5);
 COMMIT;

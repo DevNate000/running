@@ -1,76 +1,31 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash
 from datetime import datetime
 from urllib.parse import urlparse
-
-
-import sqlite3
+# time sqlite3 running.db .dump > backup.sql
 import os
-import subprocess
 import json
 
-# time sqlite3 running.db .dump > backup.sql
+# MyPy Database
+from py.database.db import dbConnection, backupDatabase, loadDefaultDatabase
+from py.database.db_queries import dbRunsQuery
+
+#MyPy Imports
+
+# MyPy Pages
+from py.pages.profile import profile as profile_page
+from py.pages.login import login as login_page
+
 
 app = Flask(__name__)
 app.secret_key = 'e5f4a6d5f4ef0e4a7b2c8a7b3c2d13d1'
-DATABASE = 'running.db'
 
-def dbConnection():
-    conn = sqlite3.connect(DATABASE)
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-    return conn, cursor
-
-def backupDatabase():
-    result = subprocess.run("sqlite3 ", DATABASE, " .dump > backup.sql", shell=True, check=True, capture_output=True, text=True)
-
-    print("HERE", result)
-    print("DONE:", result.stdout)
-    if result.stdout:
-        print("Stdout:", result.stdout)
-
-
-@app.route('/login')
-def login():
-    return render_template('login.html')
+# Load Profile.html
+app.add_url_rule('/profile/<username>', view_func=profile_page)
+app.add_url_rule('/login', view_func=login_page)
 
 
 
-@app.route('/profile/<username>', methods=['GET', 'POST'])
-def profile(username):
-    conn, cursor = dbConnection()
-    cursor.execute("SELECT id FROM users WHERE username = ?", (username,))
-    user_id = cursor.fetchone()[0]
-    cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
-    user = cursor.fetchone()
-    cursor.execute("select SUM(MILES) from runnings where user_id = ?", (user_id,))
-    total_miles = cursor.fetchone()[0]
-    conn.close()
 
-    return render_template('profile.html', user=user, total_miles=total_miles)
-
-@app.route('/old_index')
-def old_index():
-    conn, cursor = dbConnection()
-    cursor.execute("SELECT * FROM users")
-    users = cursor.fetchall()
-    conn.close()
-
-    backupDatabase()
-
-
-    ## Create button for this. backupDatabase()
-
-    return render_template('old_index.html', users=users)
-
-@app.route('/index2')
-def index2():
-
-    return render_template('index2.html')
-
-@app.route('/maps')
-def maps():
-
-    return render_template('maps.html')
 
 @app.route('/')
 def public():
@@ -81,18 +36,28 @@ def private():
     return render_template('private.html')
 
 
+logged_in_user_id = 1
 
-def dbRunsQuery(condition):
-    runsQuery = f"""
-        SELECT runnings.id, runnings.user_id, users.first_name || ' ' || users.last_name as name, runnings.route_coords, runnings.miles, runnings.time, runnings.created_at, users.color, users.profile_picture, users.username
-        FROM runnings
-        LEFT JOIN users ON runnings.user_id = users.id
-        {condition}
-        ORDER BY miles desc
-        """
-    return runsQuery
+@app.route('/backupDatabase')
+def backup_database_route():
+    if logged_in_user_id == 1:
+        backupDatabase()
+        print("Admin: Database backed up.")
+        return 'Success', 204
+    else:
+        print("Admin: Unauthorized access attempt.")
+        return 'Error', 204
 
-logged_in_user_id = 3
+@app.route('/loadDefaultDatabase')
+def resetDatabase():
+    if logged_in_user_id == 1:
+        loadDefaultDatabase()
+        print("Admin: Database reset.")
+        return 'Success', 204
+    else:
+        print("Admin: Unauthorized access attempt.")
+        return 'Error', 204
+
 
 
 @app.route('/api/runs', methods=['GET'])
