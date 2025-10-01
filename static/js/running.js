@@ -427,12 +427,14 @@ setMapMode(mapMode);
           time: result.run.time,
           route_coords: result.run.route_coords,
           color: result.run.color,
-          user_id: result.run.user_id
+          user_id: result.run.user_id,
+          profile_picture: result.run.profile_picture,
+          username: result.run.username
         });
         updateLeaderboard();
         // Draw the new territory with the correct color
         drawAllTerritories();
-        canAddMarkers = false;
+        canAddMarkers = true; // could be false to require reload
         document.getElementById('showRouteBtn').textContent = 'Route Claimed!';
       } else {
         alert('Failed to save run.');

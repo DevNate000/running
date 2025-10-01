@@ -127,7 +127,7 @@ def api_add_run():
     conn.commit()
     run_id = cursor.lastrowid
     cursor.execute("""
-        SELECT runnings.id, runnings.user_id, users.first_name || ' ' || users.last_name as name, runnings.route_coords, runnings.miles, runnings.time, runnings.created_at, users.color
+        SELECT runnings.id, runnings.user_id, users.first_name || ' ' || users.last_name as name, runnings.route_coords, runnings.miles, runnings.time, runnings.created_at, users.color, users.profile_picture, users.username
         FROM runnings
         LEFT JOIN users ON runnings.user_id = users.id
         WHERE runnings.id = ?
@@ -160,7 +160,9 @@ def api_add_run():
             'time': time_str,
             'created_at': row[6],
             'color': row[7] or 'green',
-            'pace': pace
+            'pace': pace,
+            'profile_picture': row[8],
+            'username': row[9]
         }
         return jsonify({'success': True, 'run': run})
     else:

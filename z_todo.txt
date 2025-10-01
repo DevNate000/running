@@ -1,0 +1,5 @@
+is_legit
+- add this to the runnings table.
+- show a "grey" color on the map if it's not verified
+
+
