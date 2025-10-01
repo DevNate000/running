@@ -23,7 +23,7 @@
       flex: 1 1 350px;
       min-width: 320px;
       max-width: 480px;
-      background: #23272a;
+      background-image: linear-gradient(to right, rgb(41, 39, 39), rgb(30, 28, 24), rgb(52, 52, 51));
       display: flex;
       flex-direction: column;
       padding: 0 0 0 0;
@@ -35,7 +35,6 @@
     #controls {
       padding: 16px 16px 0 16px;
       background: #23272a;
-      border-bottom: 1px solid #333;
       display: flex;
       gap: 10px;
       align-items: center;
@@ -43,18 +42,7 @@
       flex-shrink: 0;
       justify-content: center;
     }
-    #locationsList {
-      max-height: 150px;
-      overflow-y: auto;
-      margin-top: 10px;
-      background: #23272a;
-      color: #e0e0e0;
-      padding: 8px;
-      border: 1px solid #333;
-      font-size: 14px;
-      flex-grow: 1;
-      min-width: 300px;
-    }
+
     button {
       background-color: #222e3c;
       color: #e0e0e0;
@@ -67,7 +55,7 @@
       transition: background 0.2s;
     }
     button:hover {
-      background-color: #005f74;
+      background-color: #747474;
     }
     .delete-instruction {
       font-size: 13px;
@@ -211,7 +199,7 @@
     height: 70vh;
     min-height: 200px;
     max-height: 80vh;
-    background: #23272a;
+    background: #ccd0d4;
     z-index: 2000;
     box-shadow: 0 -2px 8px #000a;
     border-top-left-radius: 18px;

@@ -28,6 +28,11 @@ def backupDatabase():
         print("Stdout:", result.stdout)
 
 
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+
 @app.route('/old_index')
 def old_index():
     conn, cursor = dbConnection()
@@ -72,6 +77,8 @@ def dbRunsQuery(condition):
         """
     return runsQuery
 
+logged_in_user_id = 3
+
 
 @app.route('/api/runs', methods=['GET'])
 def api_get_runs():
@@ -80,7 +87,10 @@ def api_get_runs():
     page = urlparse(request.referrer).path.strip('/').split('/')[-1]
 
     if page == 'private':
-        queryCondition = 'WHERE user_id IN (1,2)'
+        if logged_in_user_id == 1:
+            queryCondition = 'WHERE user_id IN (1,2)'
+        else:
+            queryCondition = f'WHERE user_id = {logged_in_user_id}'
     else:
         queryCondition = 'WHERE user_id != 2'
 
@@ -126,13 +136,13 @@ def api_get_runs():
 @app.route('/api/runs', methods=['POST'])
 def api_add_run():
     data = request.get_json()
-    user_id = data.get('user_id')
+    # user_id = data.get('user_id') get the login user_id
     route_coords = json.dumps(data.get('route_coords'))
     miles = data.get('miles')
     time_val = data.get('time')
     conn, cursor = dbConnection()
     cursor.execute("INSERT INTO runnings (user_id, route_coords, miles, time) VALUES (?, ?, ?, ?)",
-                   (user_id, route_coords, miles, time_val))
+                   (logged_in_user_id, route_coords, miles, time_val))
     conn.commit()
     run_id = cursor.lastrowid
     cursor.execute("""

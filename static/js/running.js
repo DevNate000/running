@@ -198,7 +198,7 @@ setMapMode(mapMode);
       const idx = markers.indexOf(marker);
       if (idx !== -1) {
         latlngs[idx] = marker.getLatLng();
-        updateLocationsList();
+  logLocations();
       }
     });
   }
@@ -209,7 +209,7 @@ setMapMode(mapMode);
       map.removeLayer(marker);
       markers.splice(index, 1);
       latlngs.splice(index, 1);
-      updateLocationsList();
+  logLocations();
 
       if (routeLine || territoryPolygon) {
         if (latlngs.length < 2) {
@@ -226,17 +226,12 @@ setMapMode(mapMode);
     }
   }
 
-  function updateLocationsList() {
-    const listEl = document.getElementById('locationsList');
-    if (latlngs.length === 0) {
-      listEl.innerHTML = '';
-      return;
-    }
-    // Only log the lat/lng to the console
+
+  function logLocations() {
+    if (latlngs.length === 0) return;
     latlngs.forEach((pt, i) => {
       console.log(`${i + 1}. Lat: ${pt.lat.toFixed(5)}, Lng: ${pt.lng.toFixed(5)}`);
     });
-    listEl.innerHTML = '';
   }
 
   function clearRouteAndPolygon() {
@@ -348,7 +343,7 @@ setMapMode(mapMode);
     latlngs = [];
     canAddMarkers = true;
     markersDraggable = true;
-    updateLocationsList();
+  logLocations();
   }
 
   // Leaderboard update function
@@ -388,13 +383,13 @@ setMapMode(mapMode);
       return;
     }
 
-    // Prompt for user_id
-    const userId = prompt('Enter your user ID (number):', '1');
-    if (userId === null || userId.trim() === '' || isNaN(userId)) {
-      alert('User ID is required and must be a number.');
-      return;
-    }
-    const userTime = prompt('Enter total time (e.g., 30:00):', '30:00');
+    // // Prompt for user_id // don't need anymore since we are logged in
+    // const userId = prompt('Enter your user ID (number):', '1');
+    // if (userId === null || userId.trim() === '' || isNaN(userId)) {
+    //   alert('User ID is required and must be a number.');
+    //   return;
+    // }
+    const userTime = prompt('Logged in as blank \nEnter running time (e.g., 30:00):', '30:00');
     if (userTime === null || userTime.trim() === '') {
       alert('Time is required.');
       return;
@@ -410,7 +405,7 @@ setMapMode(mapMode);
 
     // Prepare run data
     const runData = {
-      user_id: userId.trim(),
+      //user_id: userId.trim(), // don't need anymore since we are logged in
       route_coords: latlngs.map(pt => [pt.lat, pt.lng]),
       miles: totalDistanceMiles,
       time: userTime.trim()
@@ -451,7 +446,7 @@ setMapMode(mapMode);
 
 
   // On page load, fetch runs from backend
-  updateLocationsList();
+  logLocations();
   fetchRuns();
 
   // Mobile bottom menu logic

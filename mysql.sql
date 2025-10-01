@@ -16,18 +16,19 @@ CREATE TABLE IF NOT EXISTS users (
     color TEXT,
     profile_picture TEXT,
     creation_date TIMESTAMP,
-    last_login TIMESTAMP
+    last_login TIMESTAMP,
+    username
 );
 
 
-INSERT INTO users (first_name, last_name, password, age, gender, location, color, profile_picture, creation_date, last_login)
+INSERT INTO users (first_name, last_name, password, age, gender, location, color, profile_picture, creation_date, last_login, username)
 VALUES
-    ('Nate', 'Smith', 'nate123!', 19, 'Male', 'NSB', 'lightblue', 'ns', '2025-09-20 10:20:10', '2025-09-23 10:20:10'),
-    ('Upcoming', 'Runs', 'nate123!', 19, 'Male', 'NSB', 'grey', 'upcoming', '2025-09-20 10:20:10', '2025-09-23 10:20:10'),
-    ('Noah', 'McDonald', 'nMcd!', 19, 'Male', 'MPS', 'red', '', '2025-09-22 10:20:10', '2025-09-25 10:20:10'),
-    ('Dad', 'Smith', 'dad!', 45, 'Male', 'NSB', 'orange', '', '2025-09-20', '2025-09-25'),
-    ('Paul', 'Smith', 'paul!', 15, 'Male', 'NSB', 'lightblue', '', '2025-09-21', '2025-09-25'),
-    ('Marlee', 'Networth', 'm!', 15, 'Male', 'NSB', 'purple', '', '2025-09-22', '2025-09-26');
+    ('Nate', 'Smith', 'nate123!', 19, 'Male', 'NSB', 'lightblue', 'ns', '2025-09-20 10:20:10', '2025-09-23 10:20:10', 'nate18'),
+    ('Upcoming', 'Runs', 'nate123!', 19, 'Male', 'NSB', 'grey', 'upcoming', '2025-09-20 10:20:10', '2025-09-23 10:20:10', '625365123'),
+    ('Noah', 'McDonald', 'nMcd!', 19, 'Male', 'MPS', 'red', '', '2025-09-22 10:20:10', '2025-09-25 10:20:10', '12534123'),
+    ('Dad', 'Smith', 'dad!', 45, 'Male', 'NSB', 'orange', '', '2025-09-20', '2025-09-25', '1827381'),
+    ('Paul', 'Smith', 'paul!', 15, 'Male', 'NSB', 'lightblue', '', '2025-09-21', '2025-09-25', '123123d'),
+    ('Marlee', 'Networth', 'm!', 15, 'Male', 'NSB', 'purple', '', '2025-09-22', '2025-09-26', '1235412');
 
 CREATE TABLE IF NOT EXISTS runs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
