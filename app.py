@@ -6,7 +6,7 @@ import os
 import json
 
 # MyPy Database
-from py.database.db import dbConnection, backupDatabase, loadDefaultDatabase
+from py.database.db import dbConnection, bp_db
 from py.database.db_queries import dbRunsQuery, getSomeRunInfo
 
 #MyPy Imports
@@ -25,7 +25,6 @@ app.add_url_rule('/login', view_func=login_page)
 
 
 
-
 @app.route('/')
 def public():
     mainRunningStats = getSomeRunInfo()
@@ -39,25 +38,7 @@ def private():
 
 logged_in_user_id = 1
 
-@app.route('/backupDatabase')
-def backup_database_route():
-    if logged_in_user_id == 1:
-        backupDatabase()
-        print("Admin: Database backed up.")
-        return 'Success', 204
-    else:
-        print("Admin: Unauthorized access attempt.")
-        return 'Error', 204
-
-@app.route('/loadDefaultDatabase')
-def resetDatabase():
-    if logged_in_user_id == 1:
-        loadDefaultDatabase()
-        print("Admin: Database reset.")
-        return 'Success', 204
-    else:
-        print("Admin: Unauthorized access attempt.")
-        return 'Error', 204
+app.register_blueprint(bp_db)
 
 
 
