@@ -1,6 +1,6 @@
-const center = [29.0340, -80.9200]; // New Smyrna Beach
+const center = [29.02324, -80.93505];
 
-  const map = L.map('map').setView(center, 13);
+  const map = L.map('map').setView(center, 12.5);
 
 
 let mapMode = 'dark_all';
@@ -78,7 +78,6 @@ setMapMode(mapMode);
           pace
         };
       });
-      updateLeaderboard();
       // Draw all runs as territories on the map
       drawAllTerritories();
     } catch (err) {
@@ -322,7 +321,6 @@ setMapMode(mapMode);
       clearRouteAndPolygon();
       clearAllMarkers();
       runs.pop(); // remove last run from leaderboard (territory we deleted)
-      updateLeaderboard();
       menuDropdown.classList.remove('show');
     });
   }
@@ -346,23 +344,7 @@ setMapMode(mapMode);
   logLocations();
   }
 
-  // Leaderboard update function
-  function updateLeaderboard() {
-    const tbody = document.querySelector('#leaderboard tbody');
-    if (runs.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; font-style: italic; color:#777;">No runs yet</td></tr>`;
-      return;
-    }
 
-    tbody.innerHTML = runs.map(run => {
-      return `<tr>
-        <td> <a style='text-decoration: none; color: ${run.color};' href="profile/${run.username}"><div class="profile-container"> <img class="profile-picture" src="/static/img/${run.profile_picture}.png" alt="${run.profile_picture}"> ${escapeHtml(run.name)} </div></a></td>
-        <td>${run.miles}</td>
-        <td>${escapeHtml(run.time)}</td>
-        <td>${run.pace ? escapeHtml(run.pace) : '--'}/mi</td>
-      </tr>`;
-    }).join('');
-  }
 
   // Escape HTML for security
   function escapeHtml(text) {
@@ -431,7 +413,6 @@ setMapMode(mapMode);
           profile_picture: result.run.profile_picture,
           username: result.run.username
         });
-        updateLeaderboard();
         // Draw the new territory with the correct color
         drawAllTerritories();
         canAddMarkers = true; // could be false to require reload

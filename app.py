@@ -7,7 +7,7 @@ import json
 
 # MyPy Database
 from py.database.db import dbConnection, backupDatabase, loadDefaultDatabase
-from py.database.db_queries import dbRunsQuery
+from py.database.db_queries import dbRunsQuery, getSomeRunInfo
 
 #MyPy Imports
 
@@ -26,14 +26,15 @@ app.add_url_rule('/login', view_func=login_page)
 
 
 
-
 @app.route('/')
 def public():
-    return render_template('public.html')
+    mainRunningStats = getSomeRunInfo()
+    return render_template('public.html', mainRunningStats=mainRunningStats)
 
 @app.route('/private')
 def private():
-    return render_template('private.html')
+    mainRunningStats = getSomeRunInfo()
+    return render_template('private.html', mainRunningStats=mainRunningStats)
 
 
 logged_in_user_id = 1
@@ -57,6 +58,8 @@ def resetDatabase():
     else:
         print("Admin: Unauthorized access attempt.")
         return 'Error', 204
+
+
 
 
 

@@ -31,10 +31,16 @@
         </tr>
       </thead>
       <tbody>
-        <tr><td colspan="4" style="text-align:center; font-style: italic; color:#777;">No runs yet</td></tr>
+        {% for mainRunningStat in mainRunningStats %}
+        <tr>
+          <td> <a style='text-decoration: none; color: {{ mainRunningStat['color'] }};' href="profile/{{ mainRunningStat['username'] }}"><div class="profile-container"> <img class="profile-picture" src="/static/img/{{ mainRunningStat['profile_picture'] }}.png" alt="{{ mainRunningStat['profile_picture'] }}"> {{ mainRunningStat['first_name'] }} {{mainRunningStat['last_name']}} </div></a></td>
+          <td>{{ mainRunningStat['miles'] }}</td>
+          <td>{{ mainRunningStat['time'] }}</td>
+          <td>{{ mainRunningStat['pace'] if mainRunningStat['pace'] else '--' }}/mi</td>
+        </tr>
+        {% endfor %}
       </tbody>
     </table>
-
   </div>
 </div>
 
