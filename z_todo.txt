@@ -2,4 +2,12 @@ is_legit
 - add this to the runnings table.
 - show a "grey" color on the map if it's not verified
 
+friends
+- create pending friend requests table
+- create friends table
 
+delete runs
+- have the ability to hover over a run and delete it
+
+/private
+- only display your runs

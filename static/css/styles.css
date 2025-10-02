@@ -26,6 +26,10 @@
   color: #fff;
   box-shadow: 0 0 12px 4px #ff512faa;
 }
+
+.leaflet-bottom .leaflet-right, .leaflet-control-attribution, .leaflet-control {
+  display: none;
+}
     body {
       margin: 0;
       display: flex;
