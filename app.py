@@ -1,13 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash
-from datetime import datetime
 from urllib.parse import urlparse
 # time sqlite3 running.db .dump > backup.sql
-import os
 import json
 
 # MyPy Database
 from py.database.db import dbConnection, bp_db
-from py.database.db_queries import dbRunsQuery, getSomeRunInfo
+from py.database.db_queries import dbRunsQuery, dbMainLeaderboardRuns
 
 #MyPy Imports
 
@@ -17,6 +15,7 @@ from py.pages.login import login as login_page
 
 
 app = Flask(__name__)
+app.register_blueprint(bp_db)
 app.secret_key = 'e5f4a6d5f4ef0e4a7b2c8a7b3c2d13d1'
 
 # Load Profile.html
@@ -27,21 +26,16 @@ app.add_url_rule('/login', view_func=login_page)
 
 @app.route('/')
 def public():
-    mainRunningStats = getSomeRunInfo()
+    mainRunningStats = dbMainLeaderboardRuns()
     return render_template('public.html', mainRunningStats=mainRunningStats)
 
 @app.route('/private')
 def private():
-    mainRunningStats = getSomeRunInfo()
+    mainRunningStats = dbMainLeaderboardRuns()
     return render_template('private.html', mainRunningStats=mainRunningStats)
 
 
 logged_in_user_id = 1
-
-app.register_blueprint(bp_db)
-
-
-
 
 
 @app.route('/api/runs', methods=['GET'])
@@ -151,16 +145,6 @@ def api_add_run():
         return jsonify({'success': True, 'run': run})
     else:
         return jsonify({'success': False}), 400
-
-# API: Delete a run
-@app.route('/api/runs/<int:run_id>', methods=['DELETE'])
-def api_delete_run(run_id):
-    conn, cursor = dbConnection()
-    cursor.execute("DELETE FROM runnings WHERE id = ?", (run_id,))
-    conn.commit()
-    conn.close()
-    return jsonify({'success': True})
-
 
 if __name__ == '__main__':
     app.run(debug=True)

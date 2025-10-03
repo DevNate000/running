@@ -11,7 +11,7 @@ def dbRunsQuery(where):
     return runsQuery
 
 
-def getSomeRunInfo():
+def dbMainLeaderboardRuns():
     conn, _ = dbConnection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM runnings LEFT JOIN users ON runnings.user_id = users.id WHERE user_id != 2 ORDER BY miles DESC")

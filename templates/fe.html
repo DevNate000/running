@@ -1,0 +1,332 @@
+<script setup>
+import { computed, nextTick, onMounted, ref, watch } from "vue";
+import { useFetch, useIntervalFn } from "@vueuse/core";
+import BaseUrl from "@/api/BaseUrl";
+import ENDPOINTS from "@/api/endpoints";
+import Headers from "@/api/Headers";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
+
+const props = defineProps({
+  bindId: String,
+  disabled: Boolean,
+  placeholder: String,
+  froalaValue: String,
+  iconBtns: Array,
+  minHeight: [String, Number],
+  maxHeight: [String, Number],
+  eventId: {
+    type: [String, Number],
+    default: null
+  },
+  templateId: {
+    type: String,
+    default: 'generic_event_email'
+  },
+  showVariablesButton: {
+    type: Boolean,
+    default: false
+  }
+});
+
+const effectiveEventId = computed(() => route.params.id || props.eventId);
+
+const effectiveTemplateId = computed(() => {
+  return route.params.templateId || props.templateId || 'generic_event_email';
+});
+
+const s3Url = computed(() => {
+  const eid = effectiveEventId.value;
+  if (!eid) {
+    console.warn('No event_id available for S3 hash fetch!');
+    return null;
+  }
+  return `${BaseUrl.get(ENDPOINTS.EVENTS.GET_S3_HASH)}${ENDPOINTS.EVENTS.GET_S3_HASH}?event_id=${eid}`;
+});
+
+const { data: s3HashData, error: s3HashError, isFinished: s3HashLoaded, execute: fetchS3Hash } = useFetch(s3Url, {
+  credentials: "include",
+  headers: Headers,
+  immediate: !!s3Url.value,
+}).json();
+
+// Add template fetch
+const templateUrl = computed(() =>
+  `${BaseUrl.get(ENDPOINTS.EVENTS.GET_TEMPLATE_DATA)}${ENDPOINTS.EVENTS.GET_TEMPLATE_DATA}?event_id=${effectiveEventId.value}&default=false&template_id=${effectiveTemplateId.value}&type=email`
+);
+
+const { data: templateData, execute: fetchTemplate } = useFetch(templateUrl, {
+  credentials: "include",
+  headers: Headers,
+}).json();
+
+// Run the fetch every 5 seconds
+useIntervalFn(() => {
+  fetchS3Hash();
+}, 60 * 60 * 1000);
+
+// Fetch template on mount
+onMounted(() => {
+  fetchTemplate().then(() => {
+    // Template data is available in templateData.value if needed
+    console.log('Template data:', templateData.value)
+  });
+});
+
+const emit = defineEmits(["update"]);
+
+const editorValue = ref(props.froalaValue);
+watch(
+  () => props.froalaValue,
+  (val) => (editorValue.value = val)
+);
+watch(editorValue, (v) => {
+  emit("update", v);
+});
+
+const editor = ref(null);
+
+const editorConfig = computed(() => {
+  console.log('Froala S3 Upload:', s3HashData.value?.url, 'Event ID:', effectiveEventId.value);
+
+  return {
+    apiKey: import.meta.env.VITE_FROALA_API_KEY,
+    key: import.meta.env.VITE_FROALA_API_KEY,
+    placeholderText: props?.placeholder ?? "",
+    charCounterCount: false,
+    toolbarButtons: [
+      ...(props.iconBtns ?? [
+        "bold",
+        "italic",
+        "underline",
+        "strikeThrough",
+        "textColor",
+        "backgroundColor",
+        "emoticons",
+        "|",
+        "paragraphFormat",
+        "align",
+        "formatOL",
+        "formatUL",
+        "indent",
+        "outdent",
+        "|",
+        "insertLink",
+        "insertImage",
+        "insertFile",
+        "insertVideo",
+        "undo",
+        "redo",
+      ])
+    ],
+    toolbarSticky: true,
+    heightMin: props?.minHeight ?? 200,
+    heightMax: props?.maxHeight ?? null,
+    imageUploadURL: s3HashData.value?.url,
+    imageUploadParams: s3HashData.value?.fields,
+    events: {
+      initialized: function() {
+        if (props.disabled) {
+          this.edit.off();
+        }
+
+        // Create a simple dropdown button manually
+        const that = this;
+        const editor = this;
+
+        // Only add variables button if showVariablesButton is true
+        if (!props.showVariablesButton) return;
+
+        // Add a custom variables button to the toolbar
+        nextTick(async () => {
+          if (!editor || !editor.$tb) {
+            return;
+          }
+
+          const toolbar = editor.$tb[0];
+
+          if (!toolbar) {
+            return;
+          }
+
+          // Check if button already exists first
+          if (toolbar.querySelector('.variables-btn')) {
+            return;
+          }
+
+          // Fetch template data
+          const templateUrl = `${BaseUrl.get(ENDPOINTS.EVENTS.GET_TEMPLATE_DATA)}${ENDPOINTS.EVENTS.GET_TEMPLATE_DATA}?event_id=${effectiveEventId.value}&default=false&template_id=${effectiveTemplateId.value}&type=email`;
+          let variables = [];
+          try {
+            const response = await fetch(templateUrl, {
+              credentials: "include",
+              headers: Headers
+            });
+            const templateData = await response.json();
+            variables = templateData?.variables || [];
+            // See: https://app.clickup.com/t/36084287/FEP-3690
+            // Only expose {{FirstName}} variable for generic event emails
+            if (effectiveTemplateId.value === 'generic_event_email') {
+              variables = ['FirstName'];
+            }
+          } catch (error) {
+            console.error('Failed to fetch template variables:', error);
+          }
+
+          // Create variables button container
+          const variablesContainer = document.createElement('div');
+          variablesContainer.className = 'fr-btn-grp variables-btn-container';
+
+          // Create separator
+          const separator = document.createElement('span');
+          separator.className = 'fr-separator';
+          variablesContainer.appendChild(separator);
+
+          // Create button
+          const variablesBtn = document.createElement('button');
+          variablesBtn.className = 'fr-command fr-btn variables-btn';
+          variablesBtn.title = 'Personal Variables';
+
+          // Replace Font Awesome icon with SVG
+          variablesBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="14" height="14" style="fill: currentColor;">
+              <path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"/>
+            </svg>
+          `;
+
+
+
+          // Fallback to text if SVG doesn't render properly
+          variablesBtn.style.display = 'flex';
+          variablesBtn.style.alignItems = 'center';
+          variablesBtn.style.justifyContent = 'center';
+          variablesBtn.setAttribute('data-text', 'Var');
+
+          // Add button event listener
+          variablesBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            // Remove any existing dropdown
+            const existingDropdown = document.querySelector('.variables-dropdown');
+            if (existingDropdown) {
+              existingDropdown.parentNode.removeChild(existingDropdown);
+              return;
+            }
+
+
+
+            // Create dropdown
+            const dropdown = document.createElement('div');
+            dropdown.className = 'fr-dropdown-menu variables-dropdown';
+            dropdown.style.position = 'absolute';
+            dropdown.style.backgroundColor = 'white';
+            dropdown.style.border = '1px solid #ccc';
+            dropdown.style.boxShadow = '0 3px 5px rgba(0,0,0,0.2)';
+            dropdown.style.padding = '10px';
+            dropdown.style.zIndex = '9999';
+            dropdown.style.borderRadius = '4px';
+            dropdown.style.minWidth = '150px';
+
+            // Create variable buttons dynamically
+            variables.forEach(variable => {
+              const variableBtn = document.createElement('button');
+              variableBtn.className = 'fr-command variable-item';
+              variableBtn.textContent = '1'
+              variableBtn.style.display = 'block';
+              variableBtn.style.width = '100%';
+              variableBtn.style.textAlign = 'left';
+              variableBtn.style.border = 'none';
+              variableBtn.style.background = 'none';
+              variableBtn.style.padding = '8px 12px';
+              variableBtn.style.cursor = 'pointer';
+              variableBtn.style.borderRadius = '3px';
+              variableBtn.style.margin = '2px 0';
+              variableBtn.addEventListener('mouseover', () => {
+                variableBtn.style.backgroundColor = '#f0f0f0';
+              });
+              variableBtn.addEventListener('mouseout', () => {
+                variableBtn.style.backgroundColor = 'transparent';
+              });
+              variableBtn.addEventListener('click', () => {
+                editor.html.insert(`{{${variable}}}`);
+                dropdown.parentNode.removeChild(dropdown);
+              });
+
+              dropdown.appendChild(variableBtn);
+            });
+
+            // Position and show dropdown
+            const rect = variablesBtn.getBoundingClientRect();
+            dropdown.style.top = `${rect.bottom + window.scrollY}px`;
+            dropdown.style.left = `${rect.left + window.scrollX}px`;
+            document.body.appendChild(dropdown);
+
+            // Add global click handler to close dropdown when clicking outside
+            setTimeout(() => {
+              document.addEventListener('click', function closeDropdown(e) {
+                if (!dropdown.contains(e.target) && e.target !== variablesBtn) {
+                  if (dropdown.parentNode) {
+                    dropdown.parentNode.removeChild(dropdown);
+                  }
+                  document.removeEventListener('click', closeDropdown);
+                }
+              });
+            }, 10);
+          });
+
+          // Add button to container
+          variablesContainer.appendChild(variablesBtn);
+
+          // Add to toolbar
+          // Find the newline element to insert before
+          const newlineElement = toolbar.querySelector('.fr-newline');
+          if (newlineElement) {
+            // Insert before the newline element
+            toolbar.insertBefore(variablesContainer, newlineElement);
+          } else {
+            // Fallback: append to the end if newline not found
+            toolbar.appendChild(variablesContainer);
+          }
+        });
+      },
+      'image.beforeUpload': function (images) {
+        const image = images[0];
+        this.fileName = image.name;
+        console.log('Uploading image to:', s3HashData.value?.url, 'with event ID:', effectiveEventId.value);
+      },
+      'image.uploaded': function () {
+        this.image.remove();
+        const s3Key = s3HashData.value?.fields?.key?.replace('${filename}', this.fileName);
+        const newUrl = `${import.meta.env.VITE_CUSTOMER_IMAGE_URL}${s3Key}`;
+        this.image.insert(newUrl);
+        return true;
+      }
+    },
+  };
+});
+
+watch(
+  () => props.disabled,
+  (isDisabled) => {
+    if (!isDisabled) {
+      editor.value?.data?._editor?.edit?.on();
+    } else {
+      editor.value?.data?._editor?.edit?.off();
+    }
+  }
+);
+
+const deferrInit = ref(true);
+
+onMounted(() => {
+  nextTick(() => {
+    deferrInit.value = false;
+  });
+});
+</script>
+
+<template>
+  <froala v-if="!deferrInit && s3HashLoaded && s3HashData.value?.url && effectiveEventId.value" @click.stop="() => { }" :style="{ minHeight: minHeight }" :id="bindId"
+    ref="editor" :config="editorConfig" v-model:value="editorValue"></froala>
+</template>

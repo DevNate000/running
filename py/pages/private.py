@@ -1,5 +1,5 @@
 from flask import render_template
-from py.database.db_queries import getSomeRunInfo
+from py.database.db_queries import dbMainLeaderboardRuns
 def private():
-    mainRunningStats = getSomeRunInfo()
+    mainRunningStats = dbMainLeaderboardRuns()
     return render_template('private.html', mainRunningStats=mainRunningStats)
